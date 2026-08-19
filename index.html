@@ -1,209 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Soma Kenya</title>
-<style>
-body{margin:0;background:#f4f6fb;font-family:Arial,sans-serif;color:#172033}
-#app{max-width:430px;margin:auto;min-height:100vh;background:white}
-header{padding:20px;font-size:24px;font-weight:bold;color:#5546d8;border-bottom:1px solid #eee}
-main{padding:20px}
-.hero{background:#5546d8;color:white;padding:25px;border-radius:22px;margin-bottom:20px}
-h1{margin-top:0}
-button{width:100%;padding:16px;margin:7px 0;border:0;border-radius:15px;background:#f0f2f7;font-size:16px;text-align:left}
-.primary{background:#5546d8;color:white;text-align:center}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tag{display:inline-block;background:#e8e6ff;color:#5546d8;padding:7px 10px;border-radius:20px;font-size:12px;font-weight:bold}
-.question{font-size:21px;font-weight:bold;margin:25px 0}
-.correct{background:#d8f5e8}
-.wrong{background:#ffe0e0}
-.explain{background:#edf9f5;padding:15px;border-radius:12px;margin:15px 0}
-.score{text-align:center;padding:30px}
-.number{font-size:65px;color:#5546d8;font-weight:bold}
-</style>
-</head>
-
-<body>
-<div id="app"></div>
-
-<script>
-let page="home";
-let form=1;
-let q=0;
-let score=0;
-let selected=null;
-
-const questions=[
-["Simplify: 3x + 2x",["5x","6x","5","x"],0,
-"3x + 2x = 5x because we add the coefficients 3 and 2."],
-
-["Solve: x + 7 = 12",["3","5","7","19"],1,
-"Subtract 7 from both sides. Therefore x = 5."],
-
-["If 2x = 14, what is x?",["5","6","7","28"],2,
-"Divide both sides by 2. Therefore x = 7."],
-
-["Simplify: 4a − a",["3","3a","4a","a"],1,
-"4a − 1a = 3a."]
-];
-
-function go(x){
- page=x;
- selected=null;
- draw();
-}
-
-function header(){
- return '<header>Soma <span style="color:#13a47b">Kenya</span></header>';
-}
-
-function draw(){
- if(page=="home")home();
- if(page=="forms")forms();
- if(page=="subjects")subjects();
- if(page=="topics")topics();
- if(page=="lesson")lesson();
- if(page=="quiz")quiz();
- if(page=="result")result();
-}
-
-function home(){
- document.getElementById("app").innerHTML=
- header()+
- '<main>'+
- '<section class="hero">'+
- '<h1>Learn. Practice. Improve.</h1>'+
- '<p>Virtual learning and revision for Kenyan secondary students.</p>'+
- '</section>'+
- '<button class="primary" onclick="go(\'forms\')">🎓 Choose Your Form</button>'+
- '<h2>Explore</h2>'+
- '<div class="grid">'+
- '<button onclick="go(\'forms\')">📚<br>Lessons</button>'+
- '<button onclick="go(\'forms\')">❓<br>Practice</button>'+
- '<button onclick="go(\'forms\')">📊<br>Progress</button>'+
- '<button onclick="alert(\'AI Tutor will be added soon.\')">🤖<br>AI Tutor</button>'+
- '</div></main>';
-}
-
-function forms(){
- document.getElementById("app").innerHTML=
- header()+
- '<main><h2>Choose your Form</h2>'+
- '<p>Select your secondary-school level.</p>'+
- [1,2,3,4].map(x=>
- '<button onclick="form='+x+';go(\'subjects\')"><b>Form '+x+
- '</b><br><small>Kenyan secondary school</small></button>'
- ).join("")+
- '</main>';
-}
-
-function subjects(){
- let subjects=[
- ["📐","Mathematics",true],
- ["🧪","Chemistry"],
- ["🧬","Biology"],
- ["⚡","Physics"],
- ["📖","English"],
- ["🌍","Geography"],
- ["🗣️","Kiswahili"],
- ["🏛️","History"]
- ];
-
- document.getElementById("app").innerHTML=
- header()+
- '<main><span class="tag">FORM '+form+'</span>'+
- '<h2>Subjects</h2><div class="grid">'+
- subjects.map(x=>
- '<button onclick="'+
- (x[2]?"go('topics')":"alert('This subject is coming soon.')")+
- '">'+x[0]+'<br>'+x[1]+'</button>'
- ).join("")+
- '</div></main>';
-}
-
-function topics(){
- document.getElementById("app").innerHTML=
- header()+
- '<main><span class="tag">FORM '+form+' • MATHEMATICS</span>'+
- '<h2>Topics</h2>'+
- '<button onclick="go(\'lesson\')"><b>Algebra</b><br>'+
- '<small>Expressions and equations</small></button>'+
- '<button onclick="alert(\'More topics coming soon.\')">Numbers</button>'+
- '<button onclick="alert(\'More topics coming soon.\')">Geometry</button>'+
- '</main>';
-}
-
-function lesson(){
- document.getElementById("app").innerHTML=
- header()+
- '<main><span class="tag">MATHEMATICS • ALGEBRA</span>'+
- '<h2>Introduction to Algebra</h2>'+
- '<p>Algebra uses letters and symbols to represent numbers.</p>'+
- '<button><b>Example</b><br>3x + 2x = 5x</button>'+
- '<button><b>Remember</b><br>Only like terms can be combined.</button>'+
- '<button class="primary" onclick="q=0;score=0;go(\'quiz\')">Start Practice →</button>'+
- '</main>';
-}
-
-function quiz(){
- let item=questions[q];
-
- let answers=item[1].map((x,i)=>
- '<button class="'+
- (selected!==null?
-  (i==item[2]?"correct":i==selected?"wrong":"")
-  :"")+
- '" onclick="answer('+i+')">'+
- String.fromCharCode(65+i)+'. '+x+'</button>'
- ).join("");
-
- let feedback=selected!==null?
- '<div class="explain"><b>'+
- (selected==item[2]?"Correct!":"Not quite.")+
- '</b><br>'+item[3]+'</div>'+
- '<button class="primary" onclick="nextQuestion()">'+
- (q==questions.length-1?"See Results":"Next Question →")+
- '</button>':"";
-
- document.getElementById("app").innerHTML=
- header()+
- '<main><span class="tag">QUESTION '+(q+1)+' OF '+questions.length+
- '</span><div class="question">'+item[0]+'</div>'+
- answers+feedback+'</main>';
-}
-
-function answer(i){
- if(selected!==null)return;
- selected=i;
- if(i==questions[q][2])score++;
- draw();
-}
-
-function nextQuestion(){
- if(q==questions.length-1){
-  go("result");
- }else{
-  q++;
-  selected=null;
-  draw();
- }
-}
-
-function result(){
- document.getElementById("app").innerHTML=
- header()+
- '<main><div class="score">'+
- '<span class="tag">QUIZ COMPLETE</span>'+
- '<h2>Your Score</h2>'+
- '<div class="number">'+score+'/'+questions.length+'</div>'+
- '<p>Keep learning and practising! 🇰🇪</p>'+
- '</div>'+
- '<button class="primary" onclick="go(\'topics\')">Study Again</button>'+
- '<button onclick="go(\'home\')">← Home</button>'+
- '</main>';
-}
-
-draw();
-</script>
-</body>
-</html>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Soma Kenya</title><style>*{box-sizing:border-box}body{margin:0;background:#f4f6fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#172033}#app{max-width:480px;margin:auto;min-height:100vh;background:#fff}header{padding:18px 20px;border-bottom:1px solid #eee;font-size:24px;font-weight:800;color:#5546d8;position:sticky;top:0;background:#fff;z-index:2}main{padding:20px 18px 35px}.hero{background:linear-gradient(135deg,#5546d8,#786cef);color:#fff;padding:24px;border-radius:22px;margin-bottom:18px}.hero h1{margin:0 0 8px;font-size:28px}.hero p{margin:0;line-height:1.5}h2{margin:18px 0 10px}.muted{color:#687389;line-height:1.5}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}button{width:100%;border:0;border-radius:15px;padding:15px;margin:6px 0;background:#f0f2f7;color:#172033;font-size:16px;text-align:left}.primary{background:#5546d8;color:#fff;text-align:center;font-weight:700}.back{background:transparent;padding:8px 0;text-align:left;color:#5546d8;font-weight:700}.tag{display:inline-block;background:#e9e7ff;color:#5546d8;padding:7px 10px;border-radius:20px;font-size:12px;font-weight:800}.card{background:#f7f8fb;border-radius:17px;padding:16px;margin:10px 0}.icon{font-size:25px}.question{font-size:21px;font-weight:750;line-height:1.4;margin:22px 0 15px}.correct{background:#d9f6e9}.wrong{background:#ffe0e0}.explain{background:#edf9f5;border-left:4px solid #13a47b;border-radius:10px;padding:14px;margin:14px 0;line-height:1.5}.score{text-align:center;padding:25px 5px}.number{font-size:64px;font-weight:800;color:#5546d8}.small{font-size:13px;color:#687389}</style></head><body><div id="app"></div><script>
+const subjects={
+math:{name:'Mathematics',icon:'📐',topics:[['Algebra','Variables, expressions and equations',[['Simplify: 3x + 2x',['5x','6x','5','x'],0,'Add like terms: 3x + 2x = 5x.'],['Solve: x + 7 = 12',['3','5','7','19'],1,'Subtract 7 from both sides, so x = 5.'],['If 2x = 14, what is x?',['5','6','7','28'],2,'Divide both sides by 2, so x = 7.']]],['Numbers','Fractions, decimals and percentages',[['What is 25% of 200?',['25','40','50','75'],2,'25% = 0.25 and 0.25 × 200 = 50.'],['Which is equal to 1/2?',['0.25','0.5','1.5','2'],1,'One half is 0.5.'],['2 + 3 × 4 = ?',['20','14','24','9'],1,'Multiplication comes before addition: 2 + 12 = 14.']]],['Geometry','Angles and shapes',[['How many degrees are in a right angle?',['45°','90°','180°','360°'],1,'A right angle is 90°.'],['How many sides does a triangle have?',['2','3','4','5'],1,'A triangle has three sides.'],['Angles on a straight line add to:',['90°','180°','270°','360°'],1,'Angles on a straight line total 180°.']]]]},
+chem:{name:'Chemistry',icon:'🧪',topics:[['Matter','States and properties of matter',[['Which state has a fixed volume but no fixed shape?',['Solid','Liquid','Gas','Plasma'],1,'A liquid has a fixed volume and takes the shape of its container.'],['Water boils at what temperature at standard pressure?',['0°C','50°C','100°C','200°C'],2,'Water boils at 100°C at standard atmospheric pressure.'],['Which is a gas?',['Iron','Oxygen','Copper','Salt'],1,'Oxygen is a gas at room temperature.']]],['Atoms','Elements and compounds',[['The smallest unit of an element is an:',['Atom','Cell','Organ','Mixture'],0,'An atom is the basic unit of an element.'],['H₂O is commonly called:',['Oxygen','Hydrogen','Water','Salt'],2,'H₂O is water.'],['Which particle has a negative charge?',['Proton','Neutron','Electron','Nucleus'],2,'Electrons carry negative charge.']]],['Acids and Bases','Indicators and pH',[['A solution with pH 7 is:',['Acidic','Neutral','Alkaline','Metallic'],1,'pH 7 is neutral.'],['Blue litmus turns what colour in an acid?',['Blue','Green','Red','Yellow'],2,'Acids turn blue litmus red.'],['Lemon juice is generally:',['Acidic','Neutral','Alkaline','A salt'],0,'Lemon juice contains citric acid.']]]]},
+bio:{name:'Biology',icon:'🧬',topics:[['Cells','Basic cell structure',[['The control centre of a cell is the:',['Cell wall','Nucleus','Vacuole','Cytoplasm'],1,'The nucleus controls many cell activities.'],['Which structure is found in plant cells and carries out photosynthesis?',['Chloroplast','Ribosome','Nucleus','Cell membrane'],0,'Chloroplasts contain chlorophyll for photosynthesis.'],['The cell membrane controls:',['Entry and exit of substances','Only colour','Bone growth','Breathing'],0,'The cell membrane regulates movement of substances.']]],['Nutrition','Food and nutrients',[['Which nutrient mainly provides energy?',['Carbohydrates','Water','Minerals','Vitamins'],0,'Carbohydrates are an important energy source.'],['Which test is commonly used for starch?',['Iodine test','Biuret test','Benedict’s test','Emulsion test'],0,'Iodine solution turns blue-black when starch is present.'],['A balanced diet contains:',['Only protein','Only carbohydrates','A variety of needed nutrients','Only vitamins'],2,'A balanced diet supplies the nutrients the body needs.']]],['Ecology','Organisms and their environment',[['A group of organisms of the same species in an area is a:',['Population','Community','Biome','Habitat'],0,'A population is a group of the same species living in an area.'],['Green plants are usually:',['Producers','Consumers','Decomposers','Parasites'],0,'Plants make food by photosynthesis and are producers.'],['Organisms that break down dead matter are:',['Producers','Decomposers','Herbivores','Predators'],1,'Decomposers recycle nutrients.']]]]},
+physics:{name:'Physics',icon:'⚡',topics:[['Measurement','Physical quantities and units',[['The SI unit of length is the:',['Metre','Litre','Second','Newton'],0,'The SI base unit of length is the metre.'],['Time is commonly measured in:',['Seconds','Metres','Kilograms','Newtons'],0,'The SI unit of time is the second.'],['Mass is measured in:',['Kilograms','Metres','Seconds','Watts'],0,'The SI base unit of mass is the kilogram.']]],['Forces','Motion and forces',[['The SI unit of force is the:',['Joule','Newton','Watt','Pascal'],1,'Force is measured in newtons (N).'],['A force can change an object’s:',['Motion','Colour only','Temperature only','Name'],0,'A force can change speed, direction or shape.'],['Friction generally acts:',['Against motion','With motion','Only upward','Only downward'],0,'Friction usually opposes relative motion.']]],['Energy','Forms and transfer of energy',[['Energy stored in food is mainly:',['Chemical energy','Sound energy','Light only','Nuclear energy'],0,'Food stores chemical energy.'],['The unit of energy is the:',['Joule','Newton','Metre','Ampere'],0,'Energy is measured in joules (J).'],['Solar panels convert light energy mainly into:',['Electrical energy','Sound energy','Chemical waste','Motion only'],0,'Solar panels convert light energy into electrical energy.']]]]},
+english:{name:'English',icon:'📖',topics:[['Grammar','Parts of speech and sentences',[['Which word is a noun?',['Quickly','Teacher','Run','Beautiful'],1,'Teacher is a noun.'],['Choose the correct sentence:',['She are happy.','She is happy.','She am happy.','She be happy.'],1,'The correct form is “She is happy.”'],['An adjective describes a:',['Noun','Verb only','Punctuation mark','Number only'],0,'An adjective describes a noun or pronoun.']]],['Vocabulary','Meaning and word choice',[['The opposite of “ancient” is:',['Old','Modern','Historic','Early'],1,'Modern means recent or contemporary.'],['A synonym for “happy” is:',['Sad','Joyful','Angry','Tired'],1,'Joyful has a similar meaning to happy.'],['“Quickly” is usually an:',['Adverb','Noun','Article','Pronoun'],0,'Quickly describes how an action is done.']]],['Comprehension','Reading skills',[['The main idea of a passage is its:',['Central message','Longest word','Last letter','Title only'],0,'The main idea is the central point.'],['A conclusion is best supported by:',['Evidence from the text','A random guess','The page number','The font'],0,'Good conclusions use evidence.'],['Skimming is useful for finding:',['General ideas quickly','Every single detail','Spelling mistakes only','Page colour'],0,'Skimming helps get the general idea quickly.']]]]},
+kiswahili:{name:'Kiswahili',icon:'🗣️',topics:[['Sarufi','Misingi ya sarufi',[['Neno “mwalimu” ni aina gani ya neno?',['Nomino','Kitenzi','Kielezi','Kivumishi'],0,'Mwalimu ni nomino.'],['Katika sentensi “Amina anakimbia”, kitenzi ni:',['Amina','ana','kimbia','sentensi'],2,'Kimbia ni kitenzi.'],['Wingi wa “kitabu” ni:',['Vitabu','Maktaba','Kitabuni','Kitabu'],0,'Wingi wa kitabu ni vitabu.']]],['Msamiati','Maneno na maana',[['Kinyume cha “refu” ni:',['Fupi','Kubwa','Ndefu','Juu'],0,'Kinyume cha refu ni fupi.'],['Visawe vya “furaha” ni:',['Shangwe','Hasira','Huzuni','Hofu'],0,'Shangwe lina maana inayokaribiana na furaha.'],['“Haraka” katika “anakimbia haraka” ni:',['Kielezi','Nomino','Kitenzi','Kiunganishi'],0,'Haraka linaeleza jinsi tendo linavyofanyika.']]],['Ufahamu','Kusoma na kuelewa',[['Wazo kuu la kifungu ni:',['Ujumbe muhimu','Neno la kwanza','Idadi ya mistari','Alama pekee'],0,'Wazo kuu ni ujumbe muhimu wa kifungu.'],['Jibu la ufahamu linapaswa kutegemea:',['Kifungu','Kubahatisha','Jina la mwandishi tu','Rangi ya ukurasa'],0,'Majibu yanapaswa kutegemea kifungu.'],['Kusoma kwa haraka ili kupata wazo kuu huitwaje?',['Skimming','Writing','Speaking','Drawing'],0,'Skimming husaidia kupata wazo kuu kwa haraka.']]]]},
+geography:{name:'Geography',icon:'🌍',topics:[['Maps','Map skills',[['A map key is also called a:',['Legend','Scale only','Compass','Grid'],0,'A map key or legend explains map symbols.'],['A compass is used to find:',['Direction','Temperature','Population only','Rainfall only'],0,'A compass helps identify directions.'],['A map scale shows the relationship between:',['Map distance and ground distance','Rain and wind','Height and age','Time and speed'],0,'Scale relates map distance to actual ground distance.']]],['Weather','Atmosphere and weather',[['An instrument for measuring temperature is a:',['Thermometer','Barometer','Rain gauge','Wind vane'],0,'A thermometer measures temperature.'],['A rain gauge measures:',['Rainfall','Wind speed','Temperature','Air pressure'],0,'A rain gauge measures rainfall.'],['A barometer measures:',['Air pressure','Rainfall','Humidity only','Distance'],0,'A barometer measures atmospheric pressure.']]],['Landforms','Physical features',[['A high area of land with a relatively flat top is a:',['Plateau','Valley','Delta','Beach'],0,'A plateau is elevated land with a fairly flat top.'],['A low area between hills or mountains is a:',['Valley','Plateau','Desert','Cape'],0,'A valley is a low area between higher land.'],['A river deposit at its mouth may form a:',['Delta','Volcano','Mountain','Glacier'],0,'Sediment at a river mouth can form a delta.']]]]},
+history:{name:'History & Government',icon:'🏛️',topics:[['Kenya','Kenyan history',[['Kenya gained independence in:',['1957','1963','1970','1980'],1,'Kenya became independent on 12 December 1963.'],['The capital city of Kenya is:',['Mombasa','Kisumu','Nairobi','Nakuru'],2,'Nairobi is Kenya’s capital city.'],['Kenya’s national language is:',['Kiswahili','French','German','Arabic'],0,'Kiswahili is Kenya’s national language.']]],['Government','Citizenship and governance',[['Kenya has how many levels of government?',['One','Two','Three','Four'],1,'Kenya has national and county governments.'],['The supreme law of Kenya is the:',['Constitution','School rulebook','County notice','Newspaper'],0,'The Constitution is the supreme law of Kenya.'],['A county government is led politically by a:',['Governor','Head teacher','Chief Justice','Speaker of Parliament'],0,'A county is headed by a governor.']]],['Citizenship','Rights and responsibilities',[['A responsible citizen should:',['Obey the law','Destroy public property','Avoid voting forever','Ignore others'],0,'Responsible citizens respect laws.'],['Public property should be:',['Protected','Destroyed','Hidden','Sold privately'],0,'Citizens should protect public property.'],['One civic responsibility is to:',['Participate responsibly in society','Break laws','Spread false information','Damage roads'],0,'Responsible participation is an important civic duty.']]]]}
+};
+let page='home',form=1,subjectKey=null,topicIndex=0,qIndex=0,score=0,selected=null;
+function header(){return '<header>Soma <span style="color:#13a47b">Kenya</span></header>'}function go(p){page=p;selected=null;draw()}function subject(){return subjects[subjectKey]}
+function draw(){if(page==='home')home();else if(page==='forms')forms();else if(page==='subjects')subjectsPage();else if(page==='topics')topicsPage();else if(page==='lesson')lessonPage();else if(page==='quiz')quizPage();else resultPage()}
+function home(){document.getElementById('app').innerHTML=header()+'<main><section class="hero"><h1>Learn. Practice. Improve. 🇰🇪</h1><p>Virtual learning, lessons and questions for Kenyan secondary school students.</p></section><button class="primary" onclick="go(\'forms\')">🎓 Choose Your Form</button><h2>Explore</h2><div class="grid"><button onclick="go(\'forms\')">📚<br>Lessons</button><button onclick="go(\'forms\')">❓<br>Practice</button><button onclick="go(\'forms\')">📊<br>Progress</button><button onclick="alert(\'AI Tutor is planned for the next version.\')">🤖<br>AI Tutor</button></div></main>'}
+function forms(){document.getElementById('app').innerHTML=header()+'<main><button class="back" onclick="go(\'home\')">← Home</button><h2>Choose your Form</h2><p class="muted">Select Form 1, 2, 3 or 4.</p>'+[1,2,3,4].map(f=>'<button onclick="form='+f+';go(\'subjects\')"><b>Form '+f+'</b><br><span class="small">Kenyan secondary school</span></button>').join('')+'</main>'}
+function subjectsPage(){document.getElementById('app').innerHTML=header()+'<main><button class="back" onclick="go(\'forms\')">← Change Form</button><span class="tag">FORM '+form+'</span><h2>Subjects</h2><p class="muted">All subjects below have starter topics, lessons and practice questions.</p><div class="grid">'+Object.entries(subjects).map(([key,s])=>'<button onclick="subjectKey=\''+key+'\';go(\'topics\')"><span class="icon">'+s.icon+'</span><br><b>'+s.name+'</b></button>').join('')+'</div></main>'}
+function topicsPage(){const s=subject();document.getElementById('app').innerHTML=header()+'<main><button class="back" onclick="go(\'subjects\')">← Subjects</button><span class="tag">FORM '+form+' • '+s.name.toUpperCase()+'</span><h2>'+s.icon+' '+s.name+'</h2>'+s.topics.map((t,i)=>'<button onclick="topicIndex='+i+';go(\'lesson\')"><b>'+t[0]+'</b><br><span class="small">'+t[1]+'</span></button>').join('')+'</main>'}
+function lessonPage(){const s=subject(),t=s.topics[topicIndex];document.getElementById('app').innerHTML=header()+'<main><button class="back" onclick="go(\'topics\')">← Topics</button><span class="tag">'+s.name.toUpperCase()+' • '+t[0].toUpperCase()+'</span><h2>'+t[0]+'</h2><p class="muted">'+t[1]+'.</p><div class="card"><h3>📘 Lesson</h3><p>Review the key ideas for this topic, then test yourself with the practice questions.</p></div><div class="card"><h3>📝 Practice</h3><p>There are '+t[2].length+' questions in this topic.</p></div><button class="primary" onclick="qIndex=0;score=0;selected=null;go(\'quiz\')">Start Practice →</button></main>'}
+function quizPage(){const s=subject(),t=s.topics[topicIndex],item=t[2][qIndex];let answers=item[1].map((a,i)=>'<button class="'+(selected!==null?(i===item[2]?'correct':i===selected?'wrong':''):'')+'" onclick="answer('+i+')">'+String.fromCharCode(65+i)+'. '+a+'</button>').join('');let feedback=selected!==null?'<div class="explain"><b>'+(selected===item[2]?'Correct! 🎉':'Not quite.')+'</b><br>'+item[3]+'</div><button class="primary" onclick="nextQuestion()">'+(qIndex===t[2].length-1?'See Results':'Next Question →')+'</button>':'';document.getElementById('app').innerHTML=header()+'<main><button class="back" onclick="go(\'lesson\')">← Lesson</button><span class="tag">QUESTION '+(qIndex+1)+' OF '+t[2].length+'</span><div class="question">'+item[0]+'</div>'+answers+feedback+'</main>'}
+function answer(i){if(selected!==null)return;selected=i;if(i===subject().topics[topicIndex][2][qIndex][2])score++;draw()}function nextQuestion(){const total=subject().topics[topicIndex][2].length;if(qIndex===total-1)go('result');else{qIndex++;selected=null;draw()}}
+function resultPage(){const total=subject().topics[topicIndex][2].length,s=subject(),t=s.topics[topicIndex];document.getElementById('app').innerHTML=header()+'<main><button class="back" onclick="go(\'topics\')">← Topics</button><div class="score"><span class="tag">QUIZ COMPLETE</span><h2>'+s.name+' • '+t[0]+'</h2><div class="number">'+score+'/'+total+'</div><p class="muted">Keep practising. Regular revision will improve your results.</p></div><button class="primary" onclick="qIndex=0;score=0;selected=null;go(\'quiz\')">Try Again</button><button onclick="go(\'topics\')">Choose Another Topic</button></main>'}
+draw();</script></body></html>
