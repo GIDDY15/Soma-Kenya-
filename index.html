@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soma Kenya</title>
+<style>
+body{margin:0;background:#f4f6fb;font-family:Arial,sans-serif;color:#172033}
+#app{max-width:430px;margin:auto;min-height:100vh;background:white}
+header{padding:20px;font-size:24px;font-weight:bold;color:#5546d8;border-bottom:1px solid #eee}
+main{padding:20px}
+.hero{background:#5546d8;color:white;padding:25px;border-radius:22px;margin-bottom:20px}
+h1{margin-top:0}
+button{width:100%;padding:16px;margin:7px 0;border:0;border-radius:15px;background:#f0f2f7;font-size:16px;text-align:left}
+.primary{background:#5546d8;color:white;text-align:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tag{display:inline-block;background:#e8e6ff;color:#5546d8;padding:7px 10px;border-radius:20px;font-size:12px;font-weight:bold}
+.question{font-size:21px;font-weight:bold;margin:25px 0}
+.correct{background:#d8f5e8}
+.wrong{background:#ffe0e0}
+.explain{background:#edf9f5;padding:15px;border-radius:12px;margin:15px 0}
+.score{text-align:center;padding:30px}
+.number{font-size:65px;color:#5546d8;font-weight:bold}
+</style>
+</head>
+
+<body>
+<div id="app"></div>
+
+<script>
+let page="home";
+let form=1;
+let q=0;
+let score=0;
+let selected=null;
+
+const questions=[
+["Simplify: 3x + 2x",["5x","6x","5","x"],0,
+"3x + 2x = 5x because we add the coefficients 3 and 2."],
+
+["Solve: x + 7 = 12",["3","5","7","19"],1,
+"Subtract 7 from both sides. Therefore x = 5."],
+
+["If 2x = 14, what is x?",["5","6","7","28"],2,
+"Divide both sides by 2. Therefore x = 7."],
+
+["Simplify: 4a − a",["3","3a","4a","a"],1,
+"4a − 1a = 3a."]
+];
+
+function go(x){
+ page=x;
+ selected=null;
+ draw();
+}
+
+function header(){
+ return '<header>Soma <span style="color:#13a47b">Kenya</span></header>';
+}
+
+function draw(){
+ if(page=="home")home();
+ if(page=="forms")forms();
+ if(page=="subjects")subjects();
+ if(page=="topics")topics();
+ if(page=="lesson")lesson();
+ if(page=="quiz")quiz();
+ if(page=="result")result();
+}
+
+function home(){
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main>'+
+ '<section class="hero">'+
+ '<h1>Learn. Practice. Improve.</h1>'+
+ '<p>Virtual learning and revision for Kenyan secondary students.</p>'+
+ '</section>'+
+ '<button class="primary" onclick="go(\'forms\')">🎓 Choose Your Form</button>'+
+ '<h2>Explore</h2>'+
+ '<div class="grid">'+
+ '<button onclick="go(\'forms\')">📚<br>Lessons</button>'+
+ '<button onclick="go(\'forms\')">❓<br>Practice</button>'+
+ '<button onclick="go(\'forms\')">📊<br>Progress</button>'+
+ '<button onclick="alert(\'AI Tutor will be added soon.\')">🤖<br>AI Tutor</button>'+
+ '</div></main>';
+}
+
+function forms(){
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main><h2>Choose your Form</h2>'+
+ '<p>Select your secondary-school level.</p>'+
+ [1,2,3,4].map(x=>
+ '<button onclick="form='+x+';go(\'subjects\')"><b>Form '+x+
+ '</b><br><small>Kenyan secondary school</small></button>'
+ ).join("")+
+ '</main>';
+}
+
+function subjects(){
+ let subjects=[
+ ["📐","Mathematics",true],
+ ["🧪","Chemistry"],
+ ["🧬","Biology"],
+ ["⚡","Physics"],
+ ["📖","English"],
+ ["🌍","Geography"],
+ ["🗣️","Kiswahili"],
+ ["🏛️","History"]
+ ];
+
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main><span class="tag">FORM '+form+'</span>'+
+ '<h2>Subjects</h2><div class="grid">'+
+ subjects.map(x=>
+ '<button onclick="'+
+ (x[2]?"go('topics')":"alert('This subject is coming soon.')")+
+ '">'+x[0]+'<br>'+x[1]+'</button>'
+ ).join("")+
+ '</div></main>';
+}
+
+function topics(){
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main><span class="tag">FORM '+form+' • MATHEMATICS</span>'+
+ '<h2>Topics</h2>'+
+ '<button onclick="go(\'lesson\')"><b>Algebra</b><br>'+
+ '<small>Expressions and equations</small></button>'+
+ '<button onclick="alert(\'More topics coming soon.\')">Numbers</button>'+
+ '<button onclick="alert(\'More topics coming soon.\')">Geometry</button>'+
+ '</main>';
+}
+
+function lesson(){
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main><span class="tag">MATHEMATICS • ALGEBRA</span>'+
+ '<h2>Introduction to Algebra</h2>'+
+ '<p>Algebra uses letters and symbols to represent numbers.</p>'+
+ '<button><b>Example</b><br>3x + 2x = 5x</button>'+
+ '<button><b>Remember</b><br>Only like terms can be combined.</button>'+
+ '<button class="primary" onclick="q=0;score=0;go(\'quiz\')">Start Practice →</button>'+
+ '</main>';
+}
+
+function quiz(){
+ let item=questions[q];
+
+ let answers=item[1].map((x,i)=>
+ '<button class="'+
+ (selected!==null?
+  (i==item[2]?"correct":i==selected?"wrong":"")
+  :"")+
+ '" onclick="answer('+i+')">'+
+ String.fromCharCode(65+i)+'. '+x+'</button>'
+ ).join("");
+
+ let feedback=selected!==null?
+ '<div class="explain"><b>'+
+ (selected==item[2]?"Correct!":"Not quite.")+
+ '</b><br>'+item[3]+'</div>'+
+ '<button class="primary" onclick="nextQuestion()">'+
+ (q==questions.length-1?"See Results":"Next Question →")+
+ '</button>':"";
+
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main><span class="tag">QUESTION '+(q+1)+' OF '+questions.length+
+ '</span><div class="question">'+item[0]+'</div>'+
+ answers+feedback+'</main>';
+}
+
+function answer(i){
+ if(selected!==null)return;
+ selected=i;
+ if(i==questions[q][2])score++;
+ draw();
+}
+
+function nextQuestion(){
+ if(q==questions.length-1){
+  go("result");
+ }else{
+  q++;
+  selected=null;
+  draw();
+ }
+}
+
+function result(){
+ document.getElementById("app").innerHTML=
+ header()+
+ '<main><div class="score">'+
+ '<span class="tag">QUIZ COMPLETE</span>'+
+ '<h2>Your Score</h2>'+
+ '<div class="number">'+score+'/'+questions.length+'</div>'+
+ '<p>Keep learning and practising! 🇰🇪</p>'+
+ '</div>'+
+ '<button class="primary" onclick="go(\'topics\')">Study Again</button>'+
+ '<button onclick="go(\'home\')">← Home</button>'+
+ '</main>';
+}
+
+draw();
+</script>
+</body>
+</html>
